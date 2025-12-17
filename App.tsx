@@ -1,11 +1,27 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, ScrollRestoration } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Pricing } from './pages/Pricing';
 import { Platform } from './pages/Platform';
-import { Footer } from './components/Footer';
+import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
+import { Dashboard } from './pages/Dashboard'; // New Dashboard Page
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+
+const httpLink = createHttpLink({
+  uri: 'http://172.22.111.169:4000/graphql', // Updated endpoint path
+  credentials: 'include', // Important for sending cookies
+});
+
+const client = new ApolloClient({
+  link: httpLink, // No more authLink needed
+  cache: new InMemoryCache(),
+});
 
 // Wrapper to handle scroll restoration on route change
 const AppContent = () => {
@@ -18,6 +34,9 @@ const AppContent = () => {
           <Route path="/about" element={<About />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/platform" element={<Platform />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard Route */}
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
@@ -28,9 +47,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <ApolloProvider client={client}>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ApolloProvider>
   );
 }
 
